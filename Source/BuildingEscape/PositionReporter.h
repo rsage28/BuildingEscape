@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "GameFramework/Actor.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "PositionReporter.generated.h"
