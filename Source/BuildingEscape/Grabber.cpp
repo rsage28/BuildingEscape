@@ -1,9 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #include "Grabber.h"
 
 #define OUT
-
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -11,14 +9,11 @@ UGrabber::UGrabber()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-
 	FindPhysicsHandle();
-
 	GetInputComponent();
 }
 
@@ -47,12 +42,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	// if physics handle is attached
 	if (PhysicsHandle->GrabbedComponent) {
-		FVector PlayerLocation;
-		FRotator PlayerRotation;
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
-
-		FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
-		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+		PhysicsHandle->SetTargetLocation(GetReachLineEnd());
 	}
 }
 
@@ -72,17 +62,12 @@ void UGrabber::Grab() {
 }
 
 FHitResult UGrabber::GetFirstPhysicsBodyInReach() const {
-	FVector PlayerLocation;
-	FRotator PlayerRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
-
-	FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
 	FHitResult Hit;
 
 	bool HitSomething = GetWorld()->LineTraceSingleByObjectType(
 		OUT Hit,
-		PlayerLocation,
-		LineTraceEnd,
+		GetReachLineStart(),
+		GetReachLineEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
 	);
@@ -96,4 +81,20 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const {
 
 void UGrabber::Release() {
 	PhysicsHandle->ReleaseComponent();
+}
+
+FVector UGrabber::GetReachLineEnd() const {
+	FVector PlayerLocation;
+	FRotator PlayerRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
+
+	return PlayerLocation + (PlayerRotation.Vector() * Reach);
+}
+
+FVector UGrabber::GetReachLineStart() const {
+	FVector PlayerLocation;
+	FRotator PlayerRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
+
+	return PlayerLocation;
 }
