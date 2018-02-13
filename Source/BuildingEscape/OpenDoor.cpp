@@ -13,13 +13,19 @@ UOpenDoor::UOpenDoor() {
 void UOpenDoor::BeginPlay() {
 	Super::BeginPlay();
 	Owner = GetOwner();
+
+	if (!PressurePlate) {
+		UE_LOG(LogTemp, Error, TEXT("Actor %s doesn't have a pressure plate"), *GetOwner()->GetName())
+	}
 }
 
 void UOpenDoor::OpenDoor() {
+	if (!Owner) { return; }
 	Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
 }
 
 void UOpenDoor::CloseDoor() {
+	if (!Owner) { return; }
 	Owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 }
 
@@ -39,6 +45,8 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 float UOpenDoor::GetTotalMassOfActorsOnPlate() {
 	float TotalMass = 0.f;
+
+	if (!PressurePlate) { return TotalMass; }
 
 	// Find all actors
 	TArray<AActor*> OverlappingActors;
